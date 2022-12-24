@@ -374,8 +374,8 @@ fi
 if $MACOS_M1; then
   export ARCH=arm64
   WORKSPACE="$CWD/workspace"
-  CFLAGS+="-arch arm64"
-  LDFLAGS+="-arch arm64"
+  CFLAGS+=" -arch arm64"
+  LDFLAGS+=" -arch arm64"
   export CFLAGS="-arch arm64"
   export CXXFLAGS="-arch arm64"
   export CPPFLAGS="-arch arm64"
@@ -385,8 +385,8 @@ if $MACOS_M1; then
 else
   export ARCH=x86_64
   WORKSPACE="$CWD/workspace_x86_64"
-  CFLAGS+="-arch x86_64"
-  LDFLAGS+="-arch x86_64"
+  CFLAGS+=" -arch x86_64"
+  LDFLAGS+=" -arch x86_64"
   export CFLAGS="-arch x86_64"
   export CXXFLAGS="-arch x86_64"
   export CPPFLAGS="-arch x86_64"
@@ -465,15 +465,15 @@ fi
 
 if command_exists "python3"; then
   # dav1d needs meson and ninja along with nasm to be built
-  if command_exists "pip3"; then
-    # meson and ninja can be installed via pip3
-    execute pip3 install pip setuptools --quiet --upgrade --no-cache-dir --disable-pip-version-check
-    for r in meson ninja; do
-      if ! command_exists ${r}; then
-        execute pip3 install ${r} --quiet --upgrade --no-cache-dir --disable-pip-version-check
-      fi
-    done
-  fi
+  # if command_exists "pip3"; then
+  #   # meson and ninja can be installed via pip3
+  #   execute pip3 install pip setuptools --quiet --upgrade --no-cache-dir --disable-pip-version-check
+  #   for r in meson ninja; do
+  #     if ! command_exists ${r}; then
+  #       execute pip3 install ${r} --quiet --upgrade --no-cache-dir --disable-pip-version-check
+  #     fi
+  #   done
+  # fi
   if command_exists "meson"; then
     if build "dav1d" "0.9.2"; then
       download "https://code.videolan.org/videolan/dav1d/-/archive/0.9.2/dav1d-0.9.2.tar.gz"
@@ -894,23 +894,23 @@ if build "libsdl" "2.0.20"; then
   build_done "libsdl" "2.0.20"
 fi
 
-if $NONFREE_AND_GPL; then
-  if build "srt" "1.4.3"; then
-    download "https://github.com/Haivision/srt/archive/v1.4.3.tar.gz" "srt-1.4.3.tar.gz"
-    export OPENSSL_ROOT_DIR="${WORKSPACE}"
-    export OPENSSL_LIB_DIR="${WORKSPACE}"/lib
-    export OPENSSL_INCLUDE_DIR="${WORKSPACE}"/include/
-    execute cmake . -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_BINDIR=bin -DCMAKE_INSTALL_INCLUDEDIR=include -DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_APPS=OFF -DUSE_STATIC_LIBSTDCXX=OFF
-    execute make install
+# if $NONFREE_AND_GPL; then
+#   if build "srt" "1.4.3"; then
+#     download "https://github.com/Haivision/srt/archive/v1.4.3.tar.gz" "srt-1.4.3.tar.gz"
+#     export OPENSSL_ROOT_DIR="${WORKSPACE}"
+#     export OPENSSL_LIB_DIR="${WORKSPACE}"/lib
+#     export OPENSSL_INCLUDE_DIR="${WORKSPACE}"/include/
+#     execute cmake . -DCMAKE_INSTALL_PREFIX="${WORKSPACE}" -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_INSTALL_BINDIR=bin -DCMAKE_INSTALL_INCLUDEDIR=include -DENABLE_SHARED=ON -DENABLE_STATIC=OFF -DENABLE_APPS=OFF -DUSE_STATIC_LIBSTDCXX=OFF
+#     execute make install
 
-    if [ -n "$LDEXEFLAGS" ]; then
-      sed -i.backup 's/-lgcc_s/-lgcc_eh/g' "${WORKSPACE}"/lib/pkgconfig/srt.pc # The -i.backup is intended and required on MacOS: https://stackoverflow.com/questions/5694228/sed-in-place-flag-that-works-both-on-mac-bsd-and-linux
-    fi
+#     if [ -n "$LDEXEFLAGS" ]; then
+#       sed -i.backup 's/-lgcc_s/-lgcc_eh/g' "${WORKSPACE}"/lib/pkgconfig/srt.pc # The -i.backup is intended and required on MacOS: https://stackoverflow.com/questions/5694228/sed-in-place-flag-that-works-both-on-mac-bsd-and-linux
+#     fi
 
-    build_done "srt" "1.4.3"
-  fi
-  CONFIGURE_OPTIONS+=("--enable-libsrt")
-fi
+#     build_done "srt" "1.4.3"
+#   fi
+#   CONFIGURE_OPTIONS+=("--enable-libsrt")
+# fi
 
 ##
 ## HWaccel library
@@ -957,6 +957,54 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
   CONFIGURE_OPTIONS+=("--enable-amf")
 fi
 
+
+##
+## subtitle
+##
+if build "freetype2" "2.12.1"; then
+  download "https://download.savannah.gnu.org/releases/freetype/freetype-2.12.1.tar.gz" "freetype-2.12.1.tar.gz"
+
+  execute ./configure --prefix="${WORKSPACE}" --disable-static --enable-shared --disable-fast-install --with-zlib --with-png --without-harfbuzz \
+  --without-bzip2 --without-fsref --without-quickdraw-toolbox --without-quickdraw-carbon --without-ats --disable-mmap
+  execute make -j $MJOBS
+  execute make install
+  build_done "freetype2" "2.12.1"
+fi
+
+# if build "fribidi" "1.0.12"; then
+#   download "https://github.com/tanersener/fribidi/archive/refs/tags/v1.0.12.tar.gz" "fribidi-1.0.12.tar.gz"
+
+#   execute autoreconf --force --install
+#   # execute ./autogen.sh --prefix="${WORKSPACE}"
+
+#   execute ./configure --prefix="${WORKSPACE}" --host=x86_64-apple-darwin --enable-static --disable-shared --disable-fast-install --disable-deprecated --disable-debug
+  
+#   execute make
+#   execute make install
+#   build_done "fribidi" "1.0.12"
+# fi
+
+if build "harfbuzz" "3.2.0"; then
+  download "https://github.com/harfbuzz/harfbuzz/archive/refs/tags/3.2.0.tar.gz" "huffbuzz-3.2.0.tar.gz"
+
+  execute ./autogen.sh --prefix="${WORKSPACE}"
+  execute ./configure --prefix="${WORKSPACE}" --host="x86_64-apple-darwin" --enable-static --disable-shared --with-glib=no --with-freetype=yes
+  execute make -j $MJOBS
+  execute make install
+  build_done "harfbuzz" "3.2.0"
+fi
+
+if build "libass" "0.17.0"; then
+  download "https://github.com/libass/libass/releases/download/0.17.0/libass-0.17.0.tar.gz" "libass-0.17.0.tar.gz"
+
+  execute ./configure --prefix="${WORKSPACE}" --disable-static --enable-shared --disable-test --disable-fast-install
+  execute make -j $MJOBS
+  execute make install
+  build_done "libass" "0.17.0"
+fi
+CONFIGURE_OPTIONS+=("--enable-libass")
+
+
 ##
 ## FFmpeg
 ##
@@ -966,16 +1014,22 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   EXTRA_VERSION="${FFMPEG_VERSION}"
 fi
 
+
 build "ffmpeg" "$FFMPEG_VERSION"
 download "https://github.com/FFmpeg/FFmpeg/archive/refs/heads/release/$FFMPEG_VERSION.tar.gz" "FFmpeg-release-$FFMPEG_VERSION.tar.gz"
+# execute patch -p0 --forward "${PACKAGES}/FFmpeg-release-5.0/libavformat/demux.c" "${PACKAGES}/demux.patch" || true
+execute patch -p0 --forward "${PACKAGES}/FFmpeg-release-5.0/libavcodec/pcm.c" "${PACKAGES}/pcm.patch" || true
 # shellcheck disable=SC2086
+CFLAGS+=" -g"
 ./configure "${CONFIGURE_OPTIONS[@]}" \
-  --disable-debug \
+  --enable-debug \
+  --disable-stripping \
+  --disable-optimizations \
+  --disable-asm \
   --disable-doc \
   --enable-shared \
   --enable-pthreads \
   --disable-static \
-  --enable-small \
   --enable-version3 \
   --extra-cflags="${CFLAGS}" \
   --extra-ldexeflags="${LDEXEFLAGS}" \
