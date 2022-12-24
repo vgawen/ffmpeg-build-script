@@ -17,6 +17,7 @@ MACOS_M1=false
 CONFIGURE_OPTIONS=()
 NONFREE_AND_GPL=false
 LATEST=false
+DEBUG_BUILD=false
 
 
 export MACOSX_DEPLOYMENT_TARGET=10.9
@@ -270,6 +271,9 @@ while (($# > 0)); do
       CFLAGS="-I$WORKSPACE/include"
       LDFLAGS="-L$WORKSPACE/lib"
       ARCH_FLAG="--arch=arm64"
+    fi
+    if [[ "$1" == "--enable-debug" ]]; then
+      DEBUG_BUILD=true
     fi
     shift
     ;;
@@ -1020,12 +1024,14 @@ download "https://github.com/FFmpeg/FFmpeg/archive/refs/heads/release/$FFMPEG_VE
 # execute patch -p0 --forward "${PACKAGES}/FFmpeg-release-5.0/libavformat/demux.c" "${PACKAGES}/demux.patch" || true
 execute patch -p0 --forward "${PACKAGES}/FFmpeg-release-5.0/libavcodec/pcm.c" "${PACKAGES}/pcm.patch" || true
 # shellcheck disable=SC2086
-CFLAGS+=" -g"
+if $DEBUG_BUILD; then
+  CFLAGS+=" -g"
+  CONFIGURE_OPTIONS+=(--enable-debug)
+  CONFIGURE_OPTIONS+=(--disable-stripping)
+  CONFIGURE_OPTIONS+=(--disable-stripping)
+  CONFIGURE_OPTIONS+=(--disable-asm)
+fi
 ./configure "${CONFIGURE_OPTIONS[@]}" \
-  --enable-debug \
-  --disable-stripping \
-  --disable-optimizations \
-  --disable-asm \
   --disable-doc \
   --enable-shared \
   --enable-pthreads \
