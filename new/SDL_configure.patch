@@ -1,0 +1,11 @@
+--- /Users/dd/work/ffmpeg-build/packages/SDL2-2.0.20/configure	2022-01-10 03:28:24
++++ /Users/dd/work/ffmpeg-build/packages/SDL2-2.0.20/configure_m	2024-01-21 16:17:38
+@@ -20460,7 +20460,7 @@
+     CFLAGS="$save_CFLAGS"
+ 
+     if test x$have_gcc_declaration_after_statement = xyes; then
+-        EXTRA_CFLAGS="$EXTRA_CFLAGS -Wdeclaration-after-statement -Werror=declaration-after-statement"
++        EXTRA_CFLAGS="$EXTRA_CFLAGS"
+     fi
+ }
+ 
