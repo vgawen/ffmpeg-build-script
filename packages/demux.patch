@@ -1,0 +1,19 @@
+--- FFmpeg-release-5.0/libavformat/demux.c	2022-12-10 20:46:44.000000000 +0800
++++ FFmpeg-release-5.0/libavformat/demux_m.c	2022-12-10 20:46:06.000000000 +0800
+@@ -2418,11 +2418,11 @@
+             max_stream_analyze_duration = 7*AV_TIME_BASE;
+     }
+ 
+-    if (ic->pb) {
+-        FFIOContext *const ctx = ffiocontext(ic->pb);
+-        av_log(ic, AV_LOG_DEBUG, "Before avformat_find_stream_info() pos: %"PRId64" bytes read:%"PRId64" seeks:%d nb_streams:%d\n",
+-               avio_tell(ic->pb), ctx->bytes_read, ctx->seek_count, ic->nb_streams);
+-    }
++//    if (ic->pb) {
++//        FFIOContext *const ctx = ffiocontext(ic->pb);
++//        av_log(ic, AV_LOG_DEBUG, "Before avformat_find_stream_info() pos: %"PRId64" bytes read:%"PRId64" seeks:%d nb_streams:%d\n",
++//               avio_tell(ic->pb), ctx->bytes_read, ctx->seek_count, ic->nb_streams);
++//    }
+ 
+     for (unsigned i = 0; i < ic->nb_streams; i++) {
+         const AVCodec *codec;

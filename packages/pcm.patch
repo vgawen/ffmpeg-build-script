@@ -1,0 +1,11 @@
+--- FFmpeg-release-5.0/libavcodec/pcm.c	2022-12-10 21:17:52.000000000 +0800
++++ FFmpeg-release-5.0/libavcodec/pcm_m.c	2022-12-10 21:16:53.000000000 +0800
+@@ -596,7 +596,7 @@
+ 
+ #define PCM_CODEC(id, sample_fmt_, name, long_name_)                    \
+     PCM_ENCODER(id, sample_fmt_, name, long_name_);                     \
+-    PCM_DECODER(id, sample_fmt_, name, long_name_)
++    PCM_DECODER(id, sample_fmt_, name, long_name_);
+ 
+ /* Note: Do not forget to add new entries to the Makefile as well. */
+ PCM_CODEC  (PCM_ALAW,         AV_SAMPLE_FMT_S16, pcm_alaw,         "PCM A-law / G.711 A-law");
